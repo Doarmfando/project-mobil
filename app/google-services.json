@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "704417369837",
+    "project_id": "ventaspilis-8466f",
+    "storage_bucket": "ventaspilis-8466f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:704417369837:android:01652916a783121dd186e4",
+        "android_client_info": {
+          "package_name": "com.example.pilisventas"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBfrKcNhpJlukpu0N8IqcZpMM5IuYeiv28"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
