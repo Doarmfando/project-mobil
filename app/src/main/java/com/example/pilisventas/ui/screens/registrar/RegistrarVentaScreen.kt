@@ -113,9 +113,7 @@ fun RegistrarVentaScreen(
                 value = uiState.notas,
                 onValueChange = viewModel::onNotasChange,
                 label = { Text("Notas (opcional)") },
-                placeholder = {
-                    Text(if (uiState.metodoPago == MetodoPago.FIADO) "Nombre del cliente que debe" else "Notas adicionales")
-                },
+                placeholder = { Text("Notas adicionales") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )

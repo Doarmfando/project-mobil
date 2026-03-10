@@ -4,6 +4,6 @@ enum class MetodoPago(val displayName: String) {
     EFECTIVO("Efectivo"),
     TRANSFERENCIA("Transferencia"),
     TARJETA("Tarjeta"),
-    FIADO("Fiado"),
+    YAPE("Yape"),
     OTRO("Otro")
 }

@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.pilisventas.data.model.MetodoPago
 import com.example.pilisventas.data.model.Venta
-import java.text.NumberFormat
+import androidx.compose.foundation.layout.PaddingValues
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -98,7 +98,7 @@ fun HomeAyudanteScreen(
                 Text("Ventas del día", fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 8.dp))
                 LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     items(uiState.misVentasHoy) { venta ->
-                        VentaItem(venta)
+                        VentaItem(venta = venta)
                     }
                     item { Spacer(modifier = Modifier.height(80.dp)) }
                 }
@@ -108,61 +108,65 @@ fun HomeAyudanteScreen(
 }
 
 @Composable
-fun VentaItem(venta: Venta) {
+fun VentaItem(venta: Venta, onEdit: ((Venta) -> Unit)? = null) {
     val metodo = runCatching { MetodoPago.valueOf(venta.metodoPago) }.getOrNull()
     Card(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                if (venta.items.isNotEmpty()) {
-                    venta.items.forEach { item ->
-                        Text(
-                            text = "${item.descripcion.ifBlank { "Producto" }}  ×${item.cantidad}  ${formatMonto(item.precioUnitario)}",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Medium
-                        )
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    if (venta.items.isNotEmpty()) {
+                        venta.items.forEach { item ->
+                            Text(
+                                text = "${item.descripcion.ifBlank { "Producto" }}  ×${item.cantidad}  ${formatMonto(item.precioUnitario)}",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                    } else {
+                        Text("Venta", fontWeight = FontWeight.Medium)
                     }
-                } else {
-                    Text("Venta", fontWeight = FontWeight.Medium)
-                }
-                Text(
-                    text = metodo?.displayName ?: venta.metodoPago,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                if (venta.notas.isNotBlank()) {
                     Text(
-                        text = venta.notas,
+                        text = metodo?.displayName ?: venta.metodoPago,
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    if (venta.vendedorNombre.isNotBlank()) {
+                        Text(
+                            text = "Vendido por: ${venta.vendedorNombre}",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    if (venta.notas.isNotBlank()) {
+                        Text(text = venta.notas, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    if (venta.modificadoPorNombre.isNotBlank()) {
+                        Text(
+                            text = "Modificado por: ${venta.modificadoPorNombre}",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.tertiary
+                        )
+                    }
+                    Text(text = formatHora(venta.fecha), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-                Text(
-                    text = formatHora(venta.fecha),
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(text = formatMonto(venta.total), fontWeight = FontWeight.Bold, fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
+                    if (onEdit != null) {
+                        TextButton(onClick = { onEdit(venta) }, contentPadding = PaddingValues(0.dp)) {
+                            Text("Editar", fontSize = 12.sp)
+                        }
+                    }
+                }
             }
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = formatMonto(venta.total),
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.primary
-            )
         }
     }
 }
 
-fun formatMonto(monto: Double): String {
-    val format = NumberFormat.getCurrencyInstance(Locale("es", "AR"))
-    return format.format(monto)
-}
+fun formatMonto(monto: Double): String = "S/ %.2f".format(monto)
 
 fun formatHora(timestamp: Long): String {
     return SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(timestamp))

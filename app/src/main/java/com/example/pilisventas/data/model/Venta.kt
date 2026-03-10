@@ -8,5 +8,8 @@ data class Venta(
     val notas: String = "",
     val vendedorId: String = "",
     val vendedorNombre: String = "",
-    val fecha: Long = System.currentTimeMillis()
+    val fecha: Long = System.currentTimeMillis(),
+    val modificadoPorId: String = "",
+    val modificadoPorNombre: String = "",
+    val fechaModificacion: Long = 0
 )

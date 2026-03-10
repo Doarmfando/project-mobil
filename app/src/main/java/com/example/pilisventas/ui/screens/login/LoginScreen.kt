@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.pilisventas.ui.theme.AzulOscuro
 
 @Composable
 fun LoginScreen(
@@ -48,12 +49,12 @@ fun LoginScreen(
             text = "PilisVentas",
             fontSize = 34.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = AzulOscuro
         )
         Text(
             text = "Tienda de ropa",
             fontSize = 15.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = AzulOscuro
         )
 
         Spacer(modifier = Modifier.height(56.dp))
@@ -64,7 +65,16 @@ fun LoginScreen(
             label = { Text("Correo electrónico") },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            singleLine = true
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedLabelColor = AzulOscuro,
+                unfocusedLabelColor = AzulOscuro,
+                focusedBorderColor = AzulOscuro,
+                unfocusedBorderColor = AzulOscuro,
+                focusedTextColor = AzulOscuro,
+                unfocusedTextColor = AzulOscuro,
+                cursorColor = AzulOscuro
+            )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -77,6 +87,15 @@ fun LoginScreen(
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedLabelColor = AzulOscuro,
+                unfocusedLabelColor = AzulOscuro,
+                focusedBorderColor = AzulOscuro,
+                unfocusedBorderColor = AzulOscuro,
+                focusedTextColor = AzulOscuro,
+                unfocusedTextColor = AzulOscuro,
+                cursorColor = AzulOscuro
+            ),
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
