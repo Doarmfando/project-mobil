@@ -9,6 +9,7 @@ import com.example.pilisventas.data.repository.VentaRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -34,7 +35,7 @@ class HomeAyudanteViewModel : ViewModel() {
             val usuario = authRepository.getCurrentUsuario()
             _uiState.update { it.copy(usuario = usuario) }
 
-            ventaRepository.getVentasDeHoy().collect { ventas ->
+            ventaRepository.getVentasDeHoy().catch { }.collect { ventas ->
                 val misVentas = ventas.filter { it.vendedorId == usuario?.uid }
                 _uiState.update {
                     it.copy(

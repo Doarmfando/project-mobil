@@ -1,6 +1,9 @@
 package com.example.pilisventas.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -69,8 +72,20 @@ fun AppNavigation(navController: NavHostController) {
             )
         }
 
-        composable(Routes.DASHBOARD) {
+        composable(Routes.DASHBOARD) { backStackEntry ->
             val viewModel: DashboardViewModel = viewModel()
+
+            // Refrescar datos del mes cada vez que se vuelve a esta pantalla
+            DisposableEffect(backStackEntry) {
+                val observer = LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        viewModel.cargarDatosMes()
+                    }
+                }
+                backStackEntry.lifecycle.addObserver(observer)
+                onDispose { backStackEntry.lifecycle.removeObserver(observer) }
+            }
+
             DashboardScreen(
                 viewModel = viewModel,
                 onNuevaVenta = { navController.navigate(Routes.REGISTRAR_VENTA) },

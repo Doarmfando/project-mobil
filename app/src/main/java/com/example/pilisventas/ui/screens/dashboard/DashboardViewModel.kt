@@ -12,6 +12,7 @@ import com.example.pilisventas.data.repository.VentaRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -36,6 +37,9 @@ class DashboardViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(DashboardUiState())
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
 
+    // Ventas del mes antes de hoy (estático, no cambia durante el día)
+    private var totalMesSinHoy: Double = 0.0
+
     init {
         loadData()
         cargarDatosMes()
@@ -46,14 +50,16 @@ class DashboardViewModel : ViewModel() {
             val usuario = authRepository.getCurrentUsuario()
             _uiState.update { it.copy(usuario = usuario) }
 
-            ventaRepository.getVentasDeHoy().collect { ventas ->
+            ventaRepository.getVentasDeHoy().catch { }.collect { ventas ->
+                val totalHoy = ventas.sumOf { v -> v.total }
                 val totalesPorMetodo = MetodoPago.entries.associateWith { metodo ->
                     ventas.filter { it.metodoPago == metodo.name }.sumOf { it.total }
                 }
                 _uiState.update {
                     it.copy(
                         ventasHoy = ventas,
-                        totalHoy = ventas.sumOf { v -> v.total },
+                        totalHoy = totalHoy,
+                        totalDelMes = totalMesSinHoy + totalHoy,
                         totalesPorMetodo = totalesPorMetodo
                     )
                 }
@@ -65,11 +71,13 @@ class DashboardViewModel : ViewModel() {
         viewModelScope.launch {
             val mes = mesActual()
             val primeroDeMes = primeroDeMes()
-            val finDeHoy = finDeHoy()
+            val inicioDeHoy = inicioDeHoy()
 
-            ventaRepository.getVentasPorRango(primeroDeMes, finDeHoy).fold(
+            // Ventas del mes excluyendo hoy (para no duplicar con el flow en tiempo real)
+            ventaRepository.getVentasPorRango(primeroDeMes, inicioDeHoy - 1).fold(
                 onSuccess = { ventas ->
-                    _uiState.update { it.copy(totalDelMes = ventas.sumOf { v -> v.total }) }
+                    totalMesSinHoy = ventas.sumOf { v -> v.total }
+                    _uiState.update { it.copy(totalDelMes = totalMesSinHoy + it.totalHoy) }
                 },
                 onFailure = { }
             )
@@ -123,10 +131,10 @@ class DashboardViewModel : ViewModel() {
         set(Calendar.MILLISECOND, 0)
     }.timeInMillis
 
-    private fun finDeHoy(): Long = Calendar.getInstance().apply {
-        set(Calendar.HOUR_OF_DAY, 23)
-        set(Calendar.MINUTE, 59)
-        set(Calendar.SECOND, 59)
-        set(Calendar.MILLISECOND, 999)
+    private fun inicioDeHoy(): Long = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
     }.timeInMillis
 }

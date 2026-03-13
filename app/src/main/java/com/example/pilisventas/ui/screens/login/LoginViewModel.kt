@@ -28,6 +28,10 @@ class LoginViewModel : ViewModel() {
     }
 
     private fun checkSession() {
+        if (!authRepository.isLoggedIn()) {
+            _uiState.update { it.copy(checkingSession = false) }
+            return
+        }
         viewModelScope.launch {
             val usuario = authRepository.getCurrentUsuario()
             _uiState.update { it.copy(checkingSession = false, usuario = usuario) }

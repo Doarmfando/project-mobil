@@ -25,7 +25,7 @@ class VentaRepository {
             .orderBy("fecha", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    trySend(emptyList())
                     return@addSnapshotListener
                 }
                 val ventas = snapshot?.documents?.mapNotNull {
